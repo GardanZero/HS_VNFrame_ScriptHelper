@@ -67,9 +67,42 @@ namespace HS_VNFrame_ScriptHelper
 
                     currentString = "def " + splittedStringDef;
 
-                    // get name of def from string
-                    string defName = currentString.Substring(0, currentString.IndexOf(":"));
-                    treeIndex++;
+					// get name of def from string
+					string defName = "";
+
+					if (currentString.Contains(":"))
+					{ 
+						defName = currentString.Substring(0, currentString.IndexOf(":"));
+					}
+					else if (currentString.Length > 30)
+					{
+						defName = currentString.Substring(0, 29);
+
+					}
+					else
+					{
+						defName = currentString;
+					}
+
+					// add the jump To scene to the def name
+					string jumpPrefix = "       ------>      ";
+
+					// find the jump to location
+					int lastIndexOfBracket = currentString.LastIndexOf(")");
+					int lastIndexOfSpace = currentString.LastIndexOf(" ");
+					string jumpToLocation = "";
+					try
+					{ 
+						jumpToLocation = currentString.Substring(lastIndexOfSpace, lastIndexOfBracket-lastIndexOfSpace);
+					}
+					catch
+					{
+
+					}
+
+					defName = defName + jumpPrefix + jumpToLocation;
+
+					treeIndex++;
                     TreeNode newNode = StructureTreeView.Nodes.Add(treeIndex.ToString(), defName);
 
                     DetailsDictionary.Add(treeIndex.ToString(), currentString);
