@@ -40,7 +40,7 @@ namespace HS_VNFrame_ScriptHelper
             {
                 wholePyText = File.ReadAllText(Filename);
             }
-            catch
+            catch (Exception e)
             {
                 MessageBox.Show("Something went wrong loading the file.");
             }

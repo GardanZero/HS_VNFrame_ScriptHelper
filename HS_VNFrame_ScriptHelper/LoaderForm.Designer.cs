@@ -45,6 +45,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.pngTB = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,15 +77,16 @@
             // openFileToolStripMenuItem1
             // 
             this.openFileToolStripMenuItem1.Name = "openFileToolStripMenuItem1";
-            this.openFileToolStripMenuItem1.Size = new System.Drawing.Size(135, 22);
+            this.openFileToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.openFileToolStripMenuItem1.Text = "Open File";
             this.openFileToolStripMenuItem1.Click += new System.EventHandler(this.openFileToolStripMenuItem1_Click);
             // 
             // saveToFileToolStripMenuItem
             // 
             this.saveToFileToolStripMenuItem.Name = "saveToFileToolStripMenuItem";
-            this.saveToFileToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.saveToFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.saveToFileToolStripMenuItem.Text = "Save To File";
+            this.saveToFileToolStripMenuItem.Click += new System.EventHandler(this.saveToFileToolStripMenuItem_Click);
             // 
             // configToolStripMenuItem
             // 
@@ -206,7 +208,7 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 26);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // LoaderForm
             // 
@@ -258,7 +260,8 @@
         public System.Windows.Forms.Label label6;
         public System.Windows.Forms.TextBox pngTB;
         public System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        public System.ComponentModel.IContainer components;
+        private System.ComponentModel.IContainer components;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
     }
 }
 

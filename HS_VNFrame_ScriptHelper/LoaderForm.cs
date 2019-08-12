@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace HS_VNFrame_ScriptHelper
     public partial class LoaderForm : Form
     {
         public StructureLoader StructureLoader { get; set; }
-
+        public string LastOpenedFileName { get; set; }
         public LoaderForm()
         {
             InitializeComponent();
@@ -44,9 +45,40 @@ namespace HS_VNFrame_ScriptHelper
             DialogResult dialogResult = openFileDialog1.ShowDialog();
 
             // this is the selected file
-            string filename = openFileDialog1.FileName;
-            StructureLoader = new StructureLoader(filename, this);
+
+            LastOpenedFileName = openFileDialog1.FileName;
+            StructureLoader = new StructureLoader(LastOpenedFileName, this);
             StructureLoader.LoadStructure();
+        }
+
+        private void saveToFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StructureLoader.LoaderForm.saveFileDialog1.Filter = "Python Files | *.py";
+            StructureLoader.LoaderForm.saveFileDialog1.InitialDirectory = Config.InitialPath;
+            StructureLoader.LoaderForm.saveFileDialog1.FileName = LastOpenedFileName.Substring(LastOpenedFileName.IndexOf(".")) + "_new.py";
+            DialogResult dialogResult = StructureLoader.LoaderForm.saveFileDialog1.ShowDialog();
+
+            string saveFileFullPath = StructureLoader.LoaderForm.saveFileDialog1.FileName;
+
+            SaveFile(saveFileFullPath);
+        }
+
+        public void SaveFile(string saveFileFullPath)
+        {
+            // read dictionary and write to file
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string dictKey in StructureLoader.DetailsDictionary.Keys)
+            {
+                if (!(dictKey.Contains(".")))
+                {
+                    sb.Append(StructureLoader.DetailsDictionary[dictKey]);
+                }
+            }
+
+            File.WriteAllText(saveFileFullPath, sb.ToString());
+
+            int i = 8;
         }
     }
 }
