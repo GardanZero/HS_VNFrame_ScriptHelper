@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace HS_VNFrame_ScriptHelper
         public TreeView StructureTreeView { get; set; }
         public string[] SplittedTextIntoDefs { get; set; }
         public TextBox RawViewTB { get; set; }
-        public Dictionary<string, string> DetailsDictionary  { get; set; }
+        public Dictionary<string, string> DetailsDictionary { get; set; }
         public LoaderForm LoaderForm { get; set; }
         public string LastNodeNumber { get; set; }
         public string LastNodeText { get; set; }
@@ -28,7 +29,7 @@ namespace HS_VNFrame_ScriptHelper
             RawViewTB = loaderForm.RawViewTB;
             DetailsDictionary = new Dictionary<string, string>();
             LoaderForm = loaderForm;
-            
+
         }
 
         public void LoadStructure()
@@ -70,7 +71,7 @@ namespace HS_VNFrame_ScriptHelper
                     string defName = currentString.Substring(0, currentString.IndexOf(":"));
                     treeIndex++;
                     TreeNode newNode = StructureTreeView.Nodes.Add(treeIndex.ToString(), defName);
-                   
+
                     DetailsDictionary.Add(treeIndex.ToString(), currentString);
 
                     // create subnodes
@@ -102,7 +103,7 @@ namespace HS_VNFrame_ScriptHelper
                         TreeNode camChildNode = newNode.Nodes.Add(treeIndex.ToString() + "." + subTreeIndex.ToString(), cameraSettingsNodeName);
                         DetailsDictionary.Add(treeIndex.ToString() + "." + subTreeIndex.ToString(), cameraSettings);
                         subTreeIndex++;
-                        
+
                     }
 
 
@@ -118,78 +119,128 @@ namespace HS_VNFrame_ScriptHelper
             }
         }
 
-        private void StructureTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void LeftMouseButton_ShowDetails(object sender, TreeNodeMouseClickEventArgs e)
         {
-            // which node was clicked?
-            string nodeNumber = e.Node.Name;
-            LastNodeNumber = nodeNumber;
-            string nodeText = e.Node.Text;
+           
+                // which node was clicked?
+                string nodeNumber = e.Node.Name;
+                LastNodeNumber = nodeNumber;
+                string nodeText = e.Node.Text;
 
-            // get raw subtext of Node
-            string rawNodeText = "";
-            try
-            {
-                rawNodeText = DetailsDictionary[nodeNumber];
-                RawViewTB.Text = rawNodeText;
-            }
-            catch (Exception)
-            {
-
-            }
-
-            if (rawNodeText != "")
-            {
-
-                // check if this is a subnode text
-                bool isProbablySubNodeText = true;
-                if (!nodeNumber.Contains(".")) { isProbablySubNodeText = false; }
-                if (rawNodeText.Contains("[\"def")) { isProbablySubNodeText = false; }
-
-                // if this is a sub node (a text with camera), we get some details
-                if (isProbablySubNodeText)
+                // get raw subtext of Node
+                string rawNodeText = "";
+                try
                 {
-                    try
-                    {
-                        string[] speakerSeparator = new string[1];
-                        speakerSeparator[0] = "\",";
-                        string[] speakerTextSplit = rawNodeText.Split(speakerSeparator, StringSplitOptions.None);
-
-                        string speaker = speakerTextSplit[0];
-                        LoaderForm.speakerTB.Text = speaker.Substring(speaker.IndexOf("\"") + 1);
-                        LastNodeSpeaker = speaker.Substring(speaker.IndexOf("\"") + 1);
-
-                        string text = speakerTextSplit[1];
-                        LoaderForm.textTB.Text = text.Substring(speaker.IndexOf("\"") + 1);
-                        LastNodeText = text.Substring(speaker.IndexOf("\"") + 1);
-
-                        LastNode = e.Node;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Cannot extract reader and text. Probably this not a text node. " + ex.Message);
-                    }
+                    rawNodeText = DetailsDictionary[nodeNumber];
+                    RawViewTB.Text = rawNodeText;
                 }
-                else
+                catch (Exception)
                 {
-                    // this is not a camera node, but something else
-                    if (rawNodeText.Contains("game.sceneDir ="))
-                    {
-                        // this node contains the game.sceneDir and (probably) the png file
-                        //  game.sceneDir = "\\"
-                        //  load_and_init_scene(game, "pool1.png", init_scene)
-                        //  game.scenePNG == "pool1.png": 
-
-                        string sceneDirPart = rawNodeText.Substring(rawNodeText.IndexOf("game.sceneDir"));
-                        string sceneDirLine = sceneDirPart.Substring(sceneDirPart.IndexOf("\""));
-                        string sceneDir = sceneDirLine.Substring(1, sceneDirLine.IndexOf("\r") - 2);
-                        LoaderForm.sceneDirTB.Text = sceneDir;
-
-                    }
 
                 }
-            }
+
+                if (rawNodeText != "")
+                {
+
+                    // check if this is a subnode text
+                    bool isProbablySubNodeText = true;
+                    if (!nodeNumber.Contains(".")) { isProbablySubNodeText = false; }
+                    if (rawNodeText.Contains("[\"def")) { isProbablySubNodeText = false; }
+
+                    // if this is a sub node (a text with camera), we get some details
+                    if (isProbablySubNodeText)
+                    {
+                        try
+                        {
+                            string[] speakerSeparator = new string[1];
+                            speakerSeparator[0] = "\",";
+                            string[] speakerTextSplit = rawNodeText.Split(speakerSeparator, StringSplitOptions.None);
+
+                            string speaker = speakerTextSplit[0];
+                            LoaderForm.speakerTB.Text = speaker.Substring(speaker.IndexOf("\"") + 1);
+                            LastNodeSpeaker = speaker.Substring(speaker.IndexOf("\"") + 1);
+
+                            string text = speakerTextSplit[1];
+                            LoaderForm.textTB.Text = text.Substring(speaker.IndexOf("\"") + 1);
+                            LastNodeText = text.Substring(speaker.IndexOf("\"") + 1);
+
+                            LastNode = e.Node;
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Cannot extract reader and text. Probably this not a text node. " + ex.Message);
+                        }
+                    }
+                    else
+                    {
+                        // this is not a camera node, but something else
+                        if (rawNodeText.Contains("game.sceneDir ="))
+                        {
+                            // this node contains the game.sceneDir and (probably) the png file
+                            //  game.sceneDir = "\\"
+                            //  load_and_init_scene(game, "pool1.png", init_scene)
+                            //  game.scenePNG == "pool1.png": 
+
+                            string sceneDirPart = rawNodeText.Substring(rawNodeText.IndexOf("game.sceneDir"));
+                            string sceneDirLine = sceneDirPart.Substring(sceneDirPart.IndexOf("\""));
+                            string sceneDir = sceneDirLine.Substring(1, sceneDirLine.IndexOf("\r") - 2);
+                            LoaderForm.sceneDirTB.Text = sceneDir;
+
+                        }
+
+                    }
+                }
+            
         }
 
-        
+        private void StructureTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                LeftMouseButton_ShowDetails(sender, e);
+            }
+            if (e.Button == MouseButtons.Right)
+            {
+                // show a context menu
+                // Select this node.
+                TreeNode node_here = StructureTreeView.GetNodeAt(e.X, e.Y);
+                StructureTreeView.SelectedNode = node_here;
+
+                // See if we got a node.
+                if (node_here == null)
+                {
+                    MessageBox.Show("No node found here, where we clicked. Error?");
+                    return;
+                }
+
+                LoaderForm.contextMenuStrip1.Items.Clear();
+                ToolStripItem insertBeforeItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Node before");
+                ToolStripItem deleteItem = LoaderForm.contextMenuStrip1.Items.Add("Delete Node");
+
+                insertBeforeItem.Click += InsertBeforeItem_Click;
+                deleteItem.Click += DeleteItem_Click;
+
+                int showX = LoaderForm.Location.X + StructureTreeView.Location.X + StructureTreeView.SelectedNode.Bounds.Location.X +40;
+                int showY = LoaderForm.Location.Y + StructureTreeView.Location.Y + StructureTreeView.SelectedNode.Bounds.Location.Y +60;
+                
+                LoaderForm.contextMenuStrip1.Show(new Point(showX,showY));
+            }
+
+        }
+
+        private void DeleteItem_Click(object sender, EventArgs e)
+        {
+            // TODO get which node got clicked
+            // Delete item from dictionary
+            // rebuild structure
+
+            throw new NotImplementedException();
+        }
+
+        private void InsertBeforeItem_Click(object sender, EventArgs e)
+        {
+            int i = 1;
+            throw new NotImplementedException();
+        }
     }
 }
