@@ -81,6 +81,13 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\!exampleSwitchSCene.txt" />
+    <Content Include="Scripts\CHOICEexample.txt" />
+    <Content Include="Scripts\fun1.py" />
+    <Content Include="Scripts\fun2.py" />
+    <Content Include="Scripts\pool1.py" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

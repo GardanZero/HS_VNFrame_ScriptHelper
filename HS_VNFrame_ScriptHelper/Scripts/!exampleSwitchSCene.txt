@@ -1,0 +1,41 @@
+#########################################################################################################################################	
+#########################################################################################################################################	
+#########################################################################################################################################	
+	
+	
+def toSc2_0(game):
+    load_and_init_scene(game, "Space Station Repop 2.png", init_scene2)
+
+def init_scene2(game):
+    try:
+        # show our game window
+        game.visible = 1
+        game.isHideGameButtons = 0
+        
+        # load actor/prop/string from scene by "tag folder", must be called after scene is loaded
+        register_actor_prop_by_tag(game)
+        register_string_resource(game)
+        
+        # import clips, after actor/prop registered
+        for clip in keyframeClips:
+            kfa_import(game, clip)
+
+        # init script helper, must be called after actor/prop registered
+        sh = init_script_helper(game)
+        sh.createLocalizeStringOnBuild = False
+        sh.masterMode = False
+        sh.baseNest = "        " # base nest space of dumpped script
+        sh.nestWord = "    " # space inserted when script is nested
+        sh.load_python() # load this python file for auto script
+        sh.asEnable = True # enable auto script feature
+        
+        # setup default next button
+        game.btnNextText = "Next >>"
+
+        # here game start
+        toSeq2(game)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        toEnd(game, "init_scene FAILED: "+str(e))	
