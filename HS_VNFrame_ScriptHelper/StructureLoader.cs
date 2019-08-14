@@ -51,106 +51,90 @@ namespace HS_VNFrame_ScriptHelper
             string[] defString = new string[1];
             defString[0] = "def ";
             SplittedTextIntoDefs = wholePyText.Split(defString, StringSplitOptions.None);
-            string currentString = "";
-            int treeIndex = 0;
-            int subTreeIndex = 0;
 
-
-            // Add Event handler
+            // Add Event handler to treeview when clicking
             StructureTreeView.NodeMouseClick += StructureTreeView_NodeMouseClick;
 
-            foreach (string splittedStringDef in SplittedTextIntoDefs)
+            // Create the Dictionary
+            DetailsDictionary = TextHelper.ParseTextIntoDictionary(SplittedTextIntoDefs);
+
+            // Create tree from Dictionary
+            CreateTreeViewFromDictionary(DetailsDictionary);
+
+        }
+
+        public void CreateTreeViewFromDictionary(Dictionary<string,string> detailsDictionary)
+        {
+            int subTreeIndex = 0;
+            string currentString = "";
+
+            foreach (string splittedKey in detailsDictionary.Keys)
             {
-                if (!splittedStringDef.StartsWith("#"))
+                if (splittedKey.Contains(".0"))
                 {
-                    subTreeIndex = 1;
 
-                    currentString = "def " + splittedStringDef;
+                    if (!detailsDictionary[splittedKey].StartsWith("#"))
+                    {
+                        subTreeIndex = 1;
 
-					// get name of def from string
-					string defName = "";
-
-					if (currentString.Contains(":"))
-					{ 
-						defName = currentString.Substring(0, currentString.IndexOf(":"));
-					}
-					else if (currentString.Length > 30)
-					{
-						defName = currentString.Substring(0, 29);
-
-					}
-					else
-					{
-						defName = currentString;
-					}
-
-					// add the jump To scene to the def name
-					string jumpPrefix = "       ------>      ";
-					string jumpToLocation = TextHelper.GetJumpToText(currentString);
-					defName = defName + jumpPrefix + jumpToLocation;
+                        currentString = detailsDictionary[splittedKey];
 
 
+                        // get name of def from string
+                        string defName = "";
 
-					// Add node to Tree
-					treeIndex++;
-                    TreeNode newNode = StructureTreeView.Nodes.Add(treeIndex.ToString() + ".0", defName);
-                    DetailsDictionary.Add(treeIndex.ToString()+".0", currentString);
+                        if (currentString.Contains(":"))
+                        {
+                            defName = currentString.Substring(0, currentString.IndexOf(":"));
+                        }
+                        else if (currentString.Length > 30)
+                        {
+                            defName = currentString.Substring(0, 29);
 
-                    // create Subnodes
-                    string[] cameraString = new string[1];
-                    cameraString[0] = "[\"";
-                    string[] cameraSplit = currentString.Split(cameraString, StringSplitOptions.None);
+                        }
+                        else
+                        {
+                            defName = currentString;
+                        }
 
-                    foreach (string camera in cameraSplit)
-					{
-						string cameraSettings, cameraSettingsNodeName;
-						CreateNodeName(camera, out cameraSettings, out cameraSettingsNodeName);
+                        // add the jump To scene to the def name
+                        string jumpPrefix = "       ------>      ";
+                        string jumpToLocation = TextHelper.GetJumpToText(currentString);
+                        defName = defName + jumpPrefix + jumpToLocation;
 
-						TreeNode camChildNode = newNode.Nodes.Add(treeIndex.ToString() + "." + subTreeIndex.ToString(), cameraSettingsNodeName);
-						DetailsDictionary.Add(treeIndex.ToString() + "." + subTreeIndex.ToString(), cameraSettings);
-						subTreeIndex++;
-					}
-				}
+                        // Add node to Tree
+
+                        TreeNode newNode = StructureTreeView.Nodes.Add(splittedKey, defName);
+
+                        // create Subnodes
+                        string[] cameraString = new string[1];
+                        cameraString[0] = "[\"";
+                        string[] cameraSplit = currentString.Split(cameraString, StringSplitOptions.None);
+
+                        foreach (string camera in cameraSplit)
+                        {
+                            string cameraSettings, cameraSettingsNodeName;
+                            TextHelper.CreateNodeName(camera, out cameraSettings, out cameraSettingsNodeName);
+                            TreeNode camChildNode = newNode.Nodes.Add(splittedKey.Replace(".0","") + "." + subTreeIndex.ToString(), cameraSettingsNodeName);
+                            subTreeIndex++;
+                        }
+
+                    }
+                    else
+                    {
+                        // add the text at the beginning of the file as the first node
+                        TreeNode newNode = StructureTreeView.Nodes.Add("0.0", "vngame");
+                    }
+                }
                 else
                 {
-                    // add the text at the beginning of the file as the first node
-                    TreeNode newNode = StructureTreeView.Nodes.Add("0", "vngame");
-                    DetailsDictionary.Add("0", splittedStringDef);
+                    // skip childnodes in dictionary
                 }
             }
         }
 
-		private static void CreateNodeName(string camera, out string cameraSettings, out string cameraSettingsNodeName)
-		{
-			cameraSettings = "";
-			if (!camera.StartsWith("def"))
-			{
-				cameraSettings = "[\"" + camera;
-			}
-			else
-			{
-				cameraSettings = camera;
-			}
 
-			cameraSettingsNodeName = "";
-			if (cameraSettings.Contains('\r'))
-			{
-				cameraSettingsNodeName = cameraSettings.Substring(0, cameraSettings.IndexOf('\r'));
-			}
-			else
-			{
-				if (cameraSettings.Length > 49)
-				{
-					cameraSettingsNodeName = cameraSettings.Substring(0, 50);
-				}
-				else
-				{
-					cameraSettingsNodeName = cameraSettings.Substring(0, cameraSettings.Length);
-				}
-			}
-		}
-
-		private void LeftMouseButton_ShowDetails(object sender, TreeNodeMouseClickEventArgs e)
+        private void LeftMouseButton_ShowDetails(object sender, TreeNodeMouseClickEventArgs e)
 		{
 
 			// which node was clicked?
@@ -181,14 +165,13 @@ namespace HS_VNFrame_ScriptHelper
 				// if this is a sub node (a text with camera), we get some details
 				if (isProbablySubNodeText)
 				{
-					// HandleSubNodeText(e, rawNodeText);
+					HandleSubNodeText(e, rawNodeText);
 				}
 				else
 				{
 
-					// set jumpToLocation in TB
-					// TODO, without prefix
-					LoaderForm.jumpToSceneTB.Text = e.Node.Text;
+                    // set jumpToLocation in TB
+                    LoaderForm.jumpToSceneTB.Text = e.Node.Text.Split(' ').Last(); ;
 
 					// this is not a camera node, but something else
 					if (rawNodeText.Contains("game.sceneDir ="))
