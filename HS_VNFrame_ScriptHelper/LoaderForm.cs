@@ -39,7 +39,7 @@ namespace HS_VNFrame_ScriptHelper
         private void openFileToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             //TODO: temporary
-            Config.InitialPath = @"E:\Games\H\Honey Select FR2 - FlashBangZ\Plugins\Console\Lib\";
+            Config.InitialPath = @"C:\Users\mtr\Source\Repos\GardanZero\HS_VNFrame_ScriptHelper\HS_VNFrame_ScriptHelper\Scripts\";
             openFileDialog1.Filter = "Python Files | *.py";
             openFileDialog1.InitialDirectory = Config.InitialPath;
             DialogResult dialogResult = openFileDialog1.ShowDialog();
@@ -70,7 +70,7 @@ namespace HS_VNFrame_ScriptHelper
 
             foreach (string dictKey in StructureLoader.DetailsDictionary.Keys)
             {
-                if (!(dictKey.Contains(".")))
+                if (!(dictKey.Contains(".0")))
                 {
                     sb.Append(StructureLoader.DetailsDictionary[dictKey]);
                 }

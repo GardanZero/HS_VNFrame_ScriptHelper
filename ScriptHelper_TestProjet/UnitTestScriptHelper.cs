@@ -11,9 +11,8 @@ namespace ScriptHelper_TestProject
         [TestMethod]
         public void TestFileInputEqualsOutput()
         {
-            string testFile = @"E:\Games\H\Honey Select FR2 - FlashBangZ\Plugins\Console\Lib\Space Station Repop Part 1-3";
-            
-            LoaderForm loaderForm = new LoaderForm();
+            string testFile = @"C:\Users\mtr\Source\Repos\GardanZero\HS_VNFrame_ScriptHelper\HS_VNFrame_ScriptHelper\Scripts\fun2";
+			LoaderForm loaderForm = new LoaderForm();
 
             loaderForm.StructureLoader = new StructureLoader(testFile+".py", loaderForm);
             loaderForm.StructureLoader.LoadStructure();

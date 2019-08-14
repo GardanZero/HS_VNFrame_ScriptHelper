@@ -122,7 +122,7 @@ def toSeq3(game):
         ["s", "And another high school student.", act, {
             'cam': {'goto_pos': ((-5.420, 0.983, 51.442), (0.000, 0.000, -0.313), (3.650, 121.648, 0.000))},
         }],
-        ["SMing", "And our club has taken charge to educate young men like yourself in proper 'behavior' around women. You see?", act, {
+        ["SMing", "And our club has taken. You see?", act, {
             'cam': {'goto_pos': ((-7.282, 1.049, 53.710), (0.000, 0.000, -0.045), (-12.450, 191.298, 0.000))},
         }],
         ["s", "Oh, so they going to teach him manners, like at a dinner table... how boring.", act, {
