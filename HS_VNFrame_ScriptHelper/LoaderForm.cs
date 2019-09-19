@@ -25,14 +25,17 @@ namespace HS_VNFrame_ScriptHelper
             // do nothing special
         }
 
-        private void saveButton_Click(object sender, EventArgs e)
+        private void applyButton_Click(object sender, EventArgs e)
         {
-            // write current text and speaker in dictionary to the node number
-            string newText = StructureLoader.DetailsDictionary[StructureLoader.LastNodeNumber].Replace("\"" + StructureLoader.LastNodeText + "\"", "\"" + textTB.Text + "\"").Replace("\"" + StructureLoader.LastNodeSpeaker + "\"", "\"" + speakerTB.Text + "\"");
-            StructureLoader.DetailsDictionary[StructureLoader.LastNodeNumber] = newText;
+			// write current text and speaker in dictionary to the node number
+			//string newText = StructureLoader.DetailsDictionary[StructureLoader.LastNodeNumber].Replace("\"" + StructureLoader.LastNodeText + "\"", "\"" + textTB.Text + "\"").Replace("\"" + StructureLoader.LastNodeSpeaker + "\"", "\"" + speakerTB.Text + "\"");
+			string newText = RawViewTB.Text;
+			StructureLoader.DetailsDictionary[StructureLoader.LastNodeNumber] = newText;
 
             // update the treeview
             StructureLoader.LastNode.Text = newText.Substring(0, 50);
+
+			applyButton.Enabled = false;
 
         }
 
@@ -80,5 +83,10 @@ namespace HS_VNFrame_ScriptHelper
 
             int i = 8;
         }
-    }
+
+		private void RawViewTB_KeyUp(object sender, KeyEventArgs e)
+		{
+			this.applyButton.Enabled = true;
+		}
+	}
 }
