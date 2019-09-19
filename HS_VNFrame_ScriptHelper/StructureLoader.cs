@@ -236,7 +236,8 @@ namespace HS_VNFrame_ScriptHelper
                 }
 
                 LoaderForm.contextMenuStrip1.Items.Clear();
-                ToolStripItem insertBeforeItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Node before");
+				ToolStripItem insertSceneSwitchItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Scene Switch after");
+				ToolStripItem insertBeforeItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Node before");
                 ToolStripItem deleteItem = LoaderForm.contextMenuStrip1.Items.Add("Delete Node");
 
                 insertBeforeItem.Click += InsertBeforeItem_Click;
