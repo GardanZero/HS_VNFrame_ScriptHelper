@@ -236,7 +236,10 @@ namespace HS_VNFrame_ScriptHelper
                 }
 
                 LoaderForm.contextMenuStrip1.Items.Clear();
+				//TODO: only allow this on top nodes
 				ToolStripItem insertSceneSwitchItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Scene Switch after");
+
+
 				ToolStripItem insertBeforeItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Node before");
                 ToolStripItem deleteItem = LoaderForm.contextMenuStrip1.Items.Add("Delete Node");
 
