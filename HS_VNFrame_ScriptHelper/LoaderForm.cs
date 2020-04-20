@@ -33,9 +33,16 @@ namespace HS_VNFrame_ScriptHelper
 			StructureLoader.DetailsDictionary[StructureLoader.LastNodeNumber] = newText;
 
             // update the treeview
-            StructureLoader.LastNode.Text = newText.Substring(0, 50);
+            if (StructureLoader.LastNode != null)
+            { 
+                // TODO: sometimes this is null, not sure what the implication is...
+                StructureLoader.LastNode.Text = newText.Substring(0, 50);
+            }
 
-			applyButton.Enabled = false;
+            StructureLoader.CreateTreeViewFromDictionary(StructureLoader.DetailsDictionary);
+
+
+            applyButton.Enabled = false;
 
         }
 
@@ -73,7 +80,11 @@ namespace HS_VNFrame_ScriptHelper
 
             foreach (string dictKey in StructureLoader.DetailsDictionary.Keys)
             {
-                if (!(dictKey.Contains(".0")))
+                if (dictKey == ("0.0"))
+                {
+                    sb.Append(StructureLoader.DetailsDictionary[dictKey]);
+                }
+                else if (!dictKey.Contains(".0"))
                 {
                     sb.Append(StructureLoader.DetailsDictionary[dictKey]);
                 }

@@ -65,6 +65,8 @@ namespace HS_VNFrame_ScriptHelper
 
         public void CreateTreeViewFromDictionary(Dictionary<string,string> detailsDictionary)
         {
+            StructureTreeView.Nodes.Clear();
+
             int subTreeIndex = 0;
             string currentString = "";
 
@@ -113,12 +115,14 @@ namespace HS_VNFrame_ScriptHelper
 
                         foreach (string camera in cameraSplit)
                         {
-                            string cameraSettings, cameraSettingsNodeName;
-                            TextHelper.CreateNodeName(camera, out cameraSettings, out cameraSettingsNodeName);
-                            TreeNode camChildNode = newNode.Nodes.Add(splittedKey.Replace(".0","") + "." + subTreeIndex.ToString(), cameraSettingsNodeName);
+                            if (!camera.Contains("def"))
+                            {
+                                string cameraSettings, cameraSettingsNodeName;
+                                TextHelper.CreateNodeName(camera, out cameraSettings, out cameraSettingsNodeName);
+                                TreeNode camChildNode = newNode.Nodes.Add(splittedKey.Replace(".0", "") + "." + subTreeIndex.ToString(), cameraSettingsNodeName);
+                            }
                             subTreeIndex++;
                         }
-
                     }
                     else
                     {
@@ -159,7 +163,7 @@ namespace HS_VNFrame_ScriptHelper
 			{
 				// check if this is a subnode text
 				bool isProbablySubNodeText = true;
-				if (nodeNumber.Contains(".0")) { isProbablySubNodeText = false; }
+				if (nodeNumber.EndsWith(".0")) { isProbablySubNodeText = false; }
 				if (rawNodeText.Contains("[\"def")) { isProbablySubNodeText = false; }
 
 				// if this is a sub node (a text with camera), we get some details
@@ -189,6 +193,18 @@ namespace HS_VNFrame_ScriptHelper
 					}
 				}
 			}
+
+            if (nodeNumber.EndsWith(".0"))
+            {
+                LoaderForm.RawViewTB.Enabled = false;
+            }
+            else
+            {
+                LoaderForm.RawViewTB.Enabled = true;
+            }
+
+        
+
 		}
 
 		private void HandleSubNodeText(TreeNodeMouseClickEventArgs e, string rawNodeText)
