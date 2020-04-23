@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,8 @@ namespace HS_VNFrame_ScriptHelper
         public LoaderForm LoaderForm { get; set; }
         public string LastNodeNumber { get; set; }
         public string LastNodeText { get; set; }
+
+        public TreeNode LastRightClickedNode { get; set; }
         public string LastNodeSpeaker { get; set; }
         public TreeNode LastNode { get; set; }
 
@@ -119,7 +122,7 @@ namespace HS_VNFrame_ScriptHelper
                             {
                                 string cameraSettings, cameraSettingsNodeName;
                                 TextHelper.CreateNodeName(camera, out cameraSettings, out cameraSettingsNodeName);
-                                TreeNode camChildNode = newNode.Nodes.Add(splittedKey.Replace(".0", "") + "." + subTreeIndex.ToString(), cameraSettingsNodeName);
+                                TreeNode camChildNode = newNode.Nodes.Add(splittedKey.Replace(".0", "") + "." + subTreeIndex.ToString("000"), cameraSettingsNodeName);
                             }
                             subTreeIndex++;
                         }
@@ -250,13 +253,23 @@ namespace HS_VNFrame_ScriptHelper
                     MessageBox.Show("No node found here, where we clicked. Error?");
                     return;
                 }
+                else
+                {
+                    LastRightClickedNode = node_here;
+                }
+
 
                 LoaderForm.contextMenuStrip1.Items.Clear();
-				//TODO: only allow this on top nodes
-				ToolStripItem insertSceneSwitchItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Scene Switch after");
+                if (node_here.Name.EndsWith(".0"))
+                { 
+				    ToolStripItem insertSceneSwitchItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Scene Switch after");
+                    ToolStripItem insertChoiceItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Choice after");
 
+                    insertSceneSwitchItem.Click += InsertSceneSwitchItem_Click;
+                    insertChoiceItem.Click += InsertChoiceItem_Click;
+                }
 
-				ToolStripItem insertBeforeItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Node before");
+                ToolStripItem insertBeforeItem = LoaderForm.contextMenuStrip1.Items.Add("Insert Node before");
                 ToolStripItem deleteItem = LoaderForm.contextMenuStrip1.Items.Add("Delete Node");
 
                 insertBeforeItem.Click += InsertBeforeItem_Click;
@@ -268,6 +281,107 @@ namespace HS_VNFrame_ScriptHelper
                 LoaderForm.contextMenuStrip1.Show(new Point(showX,showY));
             }
 
+        }
+
+        private void InsertItemAfter(string text)
+        {
+            float lastRightClickedNodeNumber = float.Parse(LastRightClickedNode.Name, CultureInfo.InvariantCulture);
+
+            // we need to cache the keys to update since we can't
+            // modify the collection during enumeration
+
+            Dictionary<string, string> newDetailsDictionary = new Dictionary<string, string>();
+
+            foreach (string key in DetailsDictionary.Keys)
+            {
+                float keyAsNumber = float.Parse(key, CultureInfo.InvariantCulture);
+                float newKey = keyAsNumber + 1;
+                float newSubkeyTest = lastRightClickedNodeNumber + 1.1f;
+
+                if (keyAsNumber == (lastRightClickedNodeNumber + 1))
+                {
+                    // add new section (and subsection)
+                    newDetailsDictionary.Add(key, text);
+                    newDetailsDictionary.Add(newSubkeyTest.ToString("0.0").Replace(",", "."), text);
+                }
+                
+                if (keyAsNumber >= (lastRightClickedNodeNumber + 1))
+                {
+                    // add 1 to the number and add new text
+                    newDetailsDictionary.Add(newKey.ToString("0.0").Replace(",", "."), DetailsDictionary[key]);
+                }
+                else
+                {
+                    newDetailsDictionary.Add(key, DetailsDictionary[key]);
+                }
+
+            }
+
+            DetailsDictionary = newDetailsDictionary;
+        }
+
+        private void InsertChoiceItem_Click(object sender, EventArgs e)
+        {
+            string newDefName = "choice" + GetNewHighestChoiceNumber();
+            InsertItemAfter("def "+newDefName+"(game): \n \tgame.set_text(\"s\", \"What is your choice?\") \n \tgame.set_buttons([\"Go to Sequence 2\", \"Go To End\"], [toSeq2, toEnd])\r\n\n");
+
+            // change target of clicked item
+            string previousJumpToText = TextHelper.GetJumpToText(DetailsDictionary[LastRightClickedNode.Name]);
+            DetailsDictionary[LastRightClickedNode.Name] = DetailsDictionary[LastRightClickedNode.Name].Replace(previousJumpToText, " " + newDefName);
+            DetailsDictionary[GetLastSubNode(LastRightClickedNode.Name)] = DetailsDictionary[GetLastSubNode(LastRightClickedNode.Name)].Replace(previousJumpToText, " " + newDefName);
+            CreateTreeViewFromDictionary(DetailsDictionary);
+        }
+
+        private int GetNewHighestChoiceNumber()
+        {
+            int highestNumber = 0;
+
+            foreach (string key in DetailsDictionary.Keys)
+            {
+                if (DetailsDictionary[key].Contains("def choice"))
+                {
+                    string choiceNumberstr = DetailsDictionary[key].Substring(DetailsDictionary[key].IndexOf("def choice")+10, 2).Replace("(","");
+                    int choiceNumber = Int32.Parse(choiceNumberstr);
+                    if (choiceNumber > highestNumber)
+                    {
+                        highestNumber = choiceNumber;
+                    }
+                }
+            }
+
+            return highestNumber + 1;
+        }
+
+        private string GetLastSubNode(string nodeNameNumber)
+        {
+            float nodeNumber = float.Parse(nodeNameNumber, CultureInfo.InvariantCulture);
+            nodeNumber = nodeNumber * 1.0f;
+
+            int highestNumber = 0;
+
+            foreach (string key in DetailsDictionary.Keys)
+            {
+                float keyNumber = float.Parse(key, CultureInfo.InvariantCulture);
+
+                if (keyNumber.ToString().Split(',')[0] == nodeNumber.ToString().Split(',')[0])
+                {
+                    // number before decimal is correct
+                    if (keyNumber.ToString().Contains(",") && keyNumber > highestNumber)
+                    {
+                        highestNumber = Int32.Parse(keyNumber.ToString().Split(',')[1]);
+                    }
+                }
+
+            }
+
+            string highestSubNode = nodeNumber.ToString().Split('.')[0] + "." + highestNumber;
+
+            return highestSubNode;
+        }
+
+        private void InsertSceneSwitchItem_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void DeleteItem_Click(object sender, EventArgs e)

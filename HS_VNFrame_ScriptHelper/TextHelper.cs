@@ -57,21 +57,14 @@ namespace HS_VNFrame_ScriptHelper
 
                 }
                 if (jumpToLocation.Contains("]"))
-                {/*
-                    def toSeq0(game):    
-                    game.set_text("Boy", "What should I do?")
-                    game.set_buttons(["Start from beginning", "Go to part 2"], [toSeq1, toSc2_0])
-                    */
+                {
                     int lastIndexOfOpenBracket = currentString.LastIndexOf("(");
                     jumpToLocation = currentString.Substring(lastIndexOfOpenBracket, lastIndexOfBracket - lastIndexOfOpenBracket);
-     
                 }
                 else
                 {
                     // give up
                 }
-
-
             }
             catch
             {
