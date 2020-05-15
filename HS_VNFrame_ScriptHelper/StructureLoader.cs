@@ -381,7 +381,61 @@ namespace HS_VNFrame_ScriptHelper
 
         private void InsertSceneSwitchItem_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            string newDefName = "switchToScene2";
+
+            SwitchSceneInfoForm switchinfoForm = new SwitchSceneInfoForm();
+            switchinfoForm.ShowDialog();
+
+            newDefName = switchinfoForm.switchSceneNameTB.Text;
+            string newSceneFileNamePNG = switchinfoForm.filenameTB.Text;
+            string newSceneJumpToSeq = switchinfoForm.SeqNameTB.Text;
+
+
+            string newSceneString = ""+
+            "def "+ newDefName + "(game):\r\n" +
+            "\tload_and_init_scene(game, \"" + newSceneFileNamePNG + "\", init_" + newDefName + ")\r\n" +
+            "\r\n" +
+            "def init_"+newDefName+"(game):\r\n" +
+            "\ttry:\r\n" +
+            "\t\t# show our game window\r\n" +
+            "\t\tgame.visible = 1\r\n" +
+            "\t\tgame.isHideGameButtons = 0\r\n" +
+            "\t\t\r\n" +
+            "\t\t# load actor/prop/string from scene by \"tag folder\", must be called after scene is loaded\r\n" +
+            "\t\tregister_actor_prop_by_tag(game)\r\n" +
+            "\t\tregister_string_resource(game)\r\n" +
+            "\t\t\r\n" +
+            "\t\t# import clips, after actor/prop registered\r\n" +
+            "\t\tfor clip in keyframeClips:\r\n" +
+            "\t\t\tkfa_import(game, clip)\r\n" +
+            "\r\n" +
+            "\t\t# init script helper, must be called after actor/prop registered\r\n" +
+            "\t\tsh = init_script_helper(game)\r\n" +
+            "\t\tsh.createLocalizeStringOnBuild = False\r\n" +
+            "\t\tsh.masterMode = False\r\n" +
+            "\t\tsh.baseNest = \"        \" # base nest space of dumpped script\r\n" +
+            "\t\tsh.nestWord = \"    \" # space inserted when script is nested\r\n" +
+            "\t\tsh.load_python() # load this python file for auto script\r\n" +
+            "\t\tsh.asEnable = True # enable auto script feature\r\n" +
+            "\t\t\r\n" +
+            "\t\t# setup default next button\r\n" +
+            "\t\tgame.btnNextText = \"Next >> \"\r\n" +
+            "\r\n" +
+            "\t\t# here game start\r\n" +
+            "\t\t"+ newSceneJumpToSeq + "(game)\r\n" +
+            "\r\n" +
+            "\texcept Exception as e:\r\n" +
+            "\t\timport traceback\r\n" +
+            "\t\ttraceback.print_exc()\r\n" +
+            "\t\ttoEnd(game, \"init_scene FAILED: \"+str(e))	\r\n\n";
+
+            InsertItemAfter(newSceneString);
+
+            // change target of clicked item
+            string previousJumpToText = TextHelper.GetJumpToText(DetailsDictionary[LastRightClickedNode.Name]);
+            DetailsDictionary[LastRightClickedNode.Name] = DetailsDictionary[LastRightClickedNode.Name].Replace(previousJumpToText, " " + newDefName);
+            DetailsDictionary[GetLastSubNode(LastRightClickedNode.Name)] = DetailsDictionary[GetLastSubNode(LastRightClickedNode.Name)].Replace(previousJumpToText, " " + newDefName);
+            CreateTreeViewFromDictionary(DetailsDictionary);
         }
 
         private void DeleteItem_Click(object sender, EventArgs e)

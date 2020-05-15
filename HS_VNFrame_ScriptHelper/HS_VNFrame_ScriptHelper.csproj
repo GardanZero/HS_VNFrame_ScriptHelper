@@ -62,6 +62,12 @@
     <Compile Include="Subforms\InsertSwitchToSceneForm.Designer.cs">
       <DependentUpon>InsertSwitchToSceneForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SwitchSceneInfoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SwitchSceneInfoForm.Designer.cs">
+      <DependentUpon>SwitchSceneInfoForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="TextHelper.cs" />
     <EmbeddedResource Include="LoaderForm.resx">
       <DependentUpon>LoaderForm.cs</DependentUpon>
@@ -75,6 +81,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="SwitchSceneInfoForm.resx">
+      <DependentUpon>SwitchSceneInfoForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
